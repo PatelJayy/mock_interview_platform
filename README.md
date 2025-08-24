@@ -56,8 +56,8 @@ Make sure you have the following installed:
 First, clone the project and navigate into its directory:
 
 ```bash
-git clone [https://github.com/adrianhajdin/ai_mock_interviews.git](https://github.com/adrianhajdin/ai_mock_interviews.git)
-cd ai_mock_interviews
+git clone [https://github.com/PatelJayy/mock_interview_platform.git]
+cd mock_interview_platform
 ```
 
 Feedback Display Page: app/(root)/interview/[id]/feedback/page.tsx
