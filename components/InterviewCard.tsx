@@ -1,12 +1,14 @@
 import React from "react";
 import dayjs from "dayjs";
 import Image from "next/image";
+import Link from "next/link";
+
 import { getRandomInterviewCover } from "@/lib/utils";
 import { Button } from "./ui/button";
-import Link from "next/link";
 import DisplayTechIcons from "./DisplayTechIcons";
+import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
-const InterviewCard = ({
+const InterviewCard = async ({
   interviewId,
   userId,
   role,
@@ -14,8 +16,15 @@ const InterviewCard = ({
   techstack,
   createdAt,
 }: InterviewCardProps) => {
-  const feedback = null as Feedback | null;
+  // FIX: Fetch the real feedback data instead of using null
+  const feedback = await getFeedbackByInterviewId({
+    interviewId,
+    userId,
+  });
+
   const normalizedType = /mix/gi.test(type) ? "Mixed" : type;
+  
+  // Use feedback date if available, otherwise interview creation date
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now()
   ).format("MMM D, YYYY");
@@ -52,21 +61,21 @@ const InterviewCard = ({
 
             <div className="flex flex-row gap-2 items-center">
               <Image src="/star.svg" alt="star" width={22} height={22} />
-
-              <p>{feedback?.totalScore || "---"}/100</p>
+              {/* If feedback exists, show score. If not, show dashes */}
+              <p>{feedback ? feedback.totalScore : "---"}/100</p>
             </div>
           </div>
 
-          <p className="line-clamp-2 mt-5">
+          <p className="line-clamp-2 mt-5 text-sm text-gray-500">
             {feedback?.finalAssessment ||
               "You haven't taken the interview yet. Take it now to improve your skills."}
           </p>
         </div>
 
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between items-end mt-4">
           <DisplayTechIcons techStack={techstack} />
 
-          <Button className="btn-primary">
+          <Button className="btn-primary" asChild>
             <Link
               href={
                 feedback
@@ -74,7 +83,7 @@ const InterviewCard = ({
                   : `/interview/${interviewId}`
               }
             >
-              {feedback ? 'Check Feedback' : 'View'}
+              {feedback ? "Check Feedback" : "Start"}
             </Link>
           </Button>
         </div>

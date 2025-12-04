@@ -10,6 +10,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 
+// Helper to make camelCase keys look readable
+const categoryLabels: Record<string, string> = {
+  communicationSkills: "Communication Skills",
+  technicalKnowledge: "Technical Knowledge",
+  problemSolving: "Problem Solving",
+  culturalFit: "Cultural Fit",
+  confidence: "Confidence & Clarity",
+};
+
 const Feedback = async ({ params }: RouteParams) => {
   const { id } = await params;
   const user = await getCurrentUser();
@@ -64,21 +73,28 @@ const Feedback = async ({ params }: RouteParams) => {
       {/* Interview Breakdown */}
       <div className="flex flex-col gap-4">
         <h2>Breakdown of the Interview:</h2>
-        {feedback?.categoryScores?.map((category, index) => (
-          <div key={index}>
-            <p className="font-bold">
-              {index + 1}. {category.name} ({category.score}/100)
-            </p>
-            <p>{category.comment}</p>
-          </div>
-        ))}
+        {/* FIX START: We use Object.entries because categoryScores is now an object, not an array */}
+        {feedback?.categoryScores &&
+          Object.entries(feedback.categoryScores).map(([key, score], index) => (
+            <div key={key} className="flex flex-col gap-1 p-2 border rounded-md">
+              <div className="flex flex-row justify-between items-center">
+                <p className="font-bold capitalize">
+                  {index + 1}. {categoryLabels[key] || key}
+                </p>
+                <p className="text-primary-200 font-bold">{score}/100</p>
+              </div>
+              {/* Note: In the new simple schema, we removed per-category comments to fix the AI generation issues. 
+                  If you need specific comments, rely on the 'Strengths' and 'Improvements' sections below. */}
+            </div>
+          ))}
+         {/* FIX END */}
       </div>
 
       <div className="flex flex-col gap-3">
         <h3>Strengths</h3>
         <ul>
           {feedback?.strengths?.map((strength, index) => (
-            <li key={index}>{strength}</li>
+            <li key={index}>- {strength}</li>
           ))}
         </ul>
       </div>
@@ -87,7 +103,7 @@ const Feedback = async ({ params }: RouteParams) => {
         <h3>Areas for Improvement</h3>
         <ul>
           {feedback?.areasForImprovement?.map((area, index) => (
-            <li key={index}>{area}</li>
+            <li key={index}>- {area}</li>
           ))}
         </ul>
       </div>
