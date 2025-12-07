@@ -26,7 +26,8 @@ export async function setSessionCookie(idToken: string) {
 }
 
 export async function signUp(params: SignUpParams) {
-  const { uid, name, email } = params;
+  // Destructure socials from params
+  const { uid, name, email, socials } = params;
 
   try {
     // check if user exists in db
@@ -41,8 +42,14 @@ export async function signUp(params: SignUpParams) {
     await db.collection("users").doc(uid).set({
       name,
       email,
-      // profileURL,
-      // resumeURL,
+      // Save the social links
+      socials: socials || { github: "", linkedin: "" },
+      
+      // Initialize useful defaults for future features (Payments/Profile)
+      createdAt: new Date().toISOString(),
+      balance: 0, 
+      planId: "free", 
+      profileURL: "", // Placeholder for future avatar uploads
     });
 
     return {
@@ -66,6 +73,7 @@ export async function signUp(params: SignUpParams) {
     };
   }
 }
+
 
 export async function signIn(params: SignInParams) {
   const { email, idToken } = params;

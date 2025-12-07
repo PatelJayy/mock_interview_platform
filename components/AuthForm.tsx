@@ -25,6 +25,9 @@ const authFormSchema = (type: FormType) => {
     name: type === "sign-up" ? z.string().min(3) : z.string().optional(),
     email: z.string().email(),
     password: z.string().min(3),
+    // Added Socials (Optional)
+    github: type === "sign-up" ? z.string().optional() : z.string().optional(),
+    linkedin: type === "sign-up" ? z.string().optional() : z.string().optional(),
   });
 };
 
@@ -38,13 +41,15 @@ const AuthForm = ({ type }: { type: FormType }) => {
       name: "",
       email: "",
       password: "",
+      github: "",
+      linkedin: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       if (type === "sign-up") {
-        const { name, email, password } = data;
+        const { name, email, password, github, linkedin } = data;
 
         const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -57,6 +62,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
           name: name!,
           email,
           password,
+          // Pass socials to your backend action
+          socials: {
+            github: github || "",
+            linkedin: linkedin || "",
+          }
         });
 
         if (!result.success) {
@@ -138,7 +148,30 @@ const AuthForm = ({ type }: { type: FormType }) => {
               type="password"
             />
 
-            <Button className="btn" type="submit">
+            {/* Social Inputs - Only show on Sign Up */}
+            {!isSignIn && (
+              <div className="flex flex-col gap-6">
+                 <p className="text-sm text-gray-400 -mb-2">Social Links (Optional)</p>
+                 <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="github"
+                      label="GitHub URL"
+                      placeholder="https://github.com/..."
+                      type="text"
+                    />
+                    <FormField
+                      control={form.control}
+                      name="linkedin"
+                      label="LinkedIn URL"
+                      placeholder="https://linkedin.com/..."
+                      type="text"
+                    />
+                 </div>
+              </div>
+            )}
+
+            <Button className="btn w-full" type="submit">
               {isSignIn ? "Sign In" : "Create an Account"}
             </Button>
           </form>
